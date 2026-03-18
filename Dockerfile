@@ -13,12 +13,14 @@ RUN apt-get update \
     git \
     git-lfs \
     htop \
+    jq \
     locales \
     lsb-release \
     man-db \
     nano \
     openssh-client \
     procps \
+    ruby \
     sudo \
     vim-tiny \
     wget \
@@ -26,6 +28,22 @@ RUN apt-get update \
     zsh \
   && git lfs install \
   && rm -rf /var/lib/apt/lists/*
+
+# yq is not in Debian repos — install from GitHub releases.
+RUN ARCH="$(dpkg --print-architecture)" \
+  && curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" -o /usr/local/bin/yq \
+  && chmod +x /usr/local/bin/yq
+
+# Install Node.js (needed for npm-based CLI tools below).
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install AI coding agents.
+RUN npm install -g \
+    opencode-ai \
+    @anthropic-ai/claude-code \
+    @openai/codex
 
 # https://wiki.debian.org/Locale#Manually
 RUN sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
