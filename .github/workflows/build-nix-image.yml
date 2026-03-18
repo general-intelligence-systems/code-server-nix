@@ -29,15 +29,25 @@ jobs:
           ref: trench
           path: trench
 
-      - name: Install native build dependencies
-        run: sudo apt update && sudo apt install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev
+      # System dependencies needed to compile native Node modules and build .deb packages.
+      # Sourced from main:.github/workflows/build.yaml and main:.github/workflows/release.yaml.
+      - name: Install system dependencies
+        run: |
+          sudo apt update && sudo apt install -y \
+            libkrb5-dev \
+            libx11-dev \
+            libxkbfile-dev \
+            libsecret-1-dev \
+            quilt
 
-      - name: Install quilt and apply patches
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: quilt
-          version: 1.0
-      - run: quilt push -a
+      - name: Install nfpm (builds .deb packages)
+        run: |
+          mkdir -p ~/.local/bin
+          curl -sSfL https://github.com/goreleaser/nfpm/releases/download/v2.3.1/nfpm_2.3.1_$(uname -s)_$(uname -m).tar.gz | tar -C ~/.local/bin -zxv nfpm
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Apply patches
+        run: quilt push -a
         working-directory: main
 
       - name: Install Node.js
@@ -70,7 +80,7 @@ jobs:
         run: npm run build:vscode
         working-directory: main
 
-      - name: Build release packages (.deb)
+      - name: Build release artifacts (.deb)
         run: |
           npm run release
           npm run release:standalone
