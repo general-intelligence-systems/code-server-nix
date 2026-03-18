@@ -30,7 +30,7 @@ jobs:
           path: trench
 
       - name: Install native build dependencies
-        run: sudo apt update && sudo apt install -y libkrb5-dev
+        run: sudo apt update && sudo apt install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev
 
       - name: Install quilt and apply patches
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -46,13 +46,27 @@ jobs:
           node-version-file: main/.node-version
 
       - name: Install code-server dependencies
-        run: npm ci
+        run: SKIP_SUBMODULE_DEPS=1 npm ci
         working-directory: main
 
-      - name: Build code-server release packages (.deb)
+      - name: Build code-server
+        run: npm run build
+        working-directory: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install VS Code dependencies
+        run: npm ci
+        working-directory: main/lib/vscode
+
+      - name: Build VS Code
+        run: npm run build:vscode
+        working-directory: main
+        env:
+          VERSION: "0.0.0"
+
+      - name: Build release packages (.deb)
         run: |
-          npm run build
-          npm run build:vscode
           npm run release
           npm run release:standalone
           npm run package
