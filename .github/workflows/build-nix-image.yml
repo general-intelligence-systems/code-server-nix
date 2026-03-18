@@ -45,6 +45,13 @@ jobs:
         with:
           node-version-file: main/.node-version
 
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(jq -r .version main/package.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Install code-server dependencies
         run: SKIP_SUBMODULE_DEPS=1 npm ci
         working-directory: main
@@ -62,8 +69,6 @@ jobs:
       - name: Build VS Code
         run: npm run build:vscode
         working-directory: main
-        env:
-          VERSION: "0.0.0"
 
       - name: Build release packages (.deb)
         run: |
@@ -89,12 +94,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract version
-        id: version
-        run: |
-          VERSION=$(jq -r .version main/package.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
         uses: docker/build-push-action@v6
