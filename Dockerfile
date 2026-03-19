@@ -22,6 +22,7 @@ RUN npm install -g \
 RUN curl --proto '=https' --tlsv1.2 -sSf -L \
     https://install.determinate.systems/nix | sh -s -- install linux \
     --extra-conf "sandbox = false" \
+    --extra-conf "filter-syscalls = false" \
     --init none \
     --no-confirm
 RUN mkdir -p /etc/nix \
