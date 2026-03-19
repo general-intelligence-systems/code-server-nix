@@ -16,83 +16,10 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout main branch (full repo for build)
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: main
-          submodules: true
-          path: main
 
-      - name: Checkout trench branch (Dockerfile + entrypoint)
-        uses: actions/checkout@v4
-        with:
-          ref: trench
-          path: trench
-
-      # System dependencies needed to compile native Node modules and build .deb packages.
-      # Sourced from main:.github/workflows/build.yaml and main:.github/workflows/release.yaml.
-      - name: Install system dependencies
-        run: |
-          sudo apt update && sudo apt install -y \
-            libkrb5-dev \
-            libx11-dev \
-            libxkbfile-dev \
-            libsecret-1-dev \
-            quilt
-
-      - name: Install nfpm (builds .deb packages)
-        run: |
-          mkdir -p ~/.local/bin
-          curl -sSfL https://github.com/goreleaser/nfpm/releases/download/v2.3.1/nfpm_2.3.1_$(uname -s)_$(uname -m).tar.gz | tar -C ~/.local/bin -zxv nfpm
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Apply patches
-        run: quilt push -a
-        working-directory: main
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: main/.node-version
-
-      - name: Extract version
-        id: version
-        run: |
-          VERSION=$(jq -r .version main/package.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-
-      - name: Install code-server dependencies
-        run: SKIP_SUBMODULE_DEPS=1 npm ci
-        working-directory: main
-
-      - name: Build code-server
-        run: npm run build
-        working-directory: main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install VS Code dependencies
-        run: npm ci
-        working-directory: main/lib/vscode
-
-      - name: Build VS Code
-        run: npm run build:vscode
-        working-directory: main
-
-      - name: Build release artifacts (.deb)
-        run: |
-          npm run release
-          npm run release:standalone
-          npm run package
-        working-directory: main
-
-      - name: Overlay trench files into build context
-        run: |
-          cp trench/Dockerfile main/ci/release-image/Dockerfile
-          cp trench/entrypoint.sh main/ci/release-image/entrypoint.sh
-
-      - name: Set up QEMU (for multi-arch builds)
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
@@ -108,12 +35,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: main
-          file: main/ci/release-image/Dockerfile
+          context: .
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
