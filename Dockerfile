@@ -20,7 +20,11 @@ RUN nix profile install \
     nixpkgs#yq-go \
     nixpkgs#nodejs_22 \
     nixpkgs#ruby_3_4 \
-    nixpkgs#vim
+    nixpkgs#fzf \
+    nixpkgs#ripgrep \
+    nixpkgs#repgrep \
+    nixpkgs#gh \
+    nixpkgs#zoxide
 
 # Install AI coding agents via npm (node is now on PATH from Nix).
 ENV NPM_CONFIG_PREFIX=/usr/local
