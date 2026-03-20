@@ -20,6 +20,8 @@ RUN nix profile install \
     nixpkgs#yq-go \
     nixpkgs#nodejs_22 \
     nixpkgs#ruby_3_4 \
+    nixpkgs#vim \
+    nixpkgs#direnv \
     nixpkgs#fzf \
     nixpkgs#ripgrep \
     nixpkgs#repgrep \
