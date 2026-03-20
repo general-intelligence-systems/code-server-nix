@@ -28,6 +28,19 @@ RUN nix profile install \
     nixpkgs#gh \
     nixpkgs#zoxide
 
+RUN apt install -y \
+  iputils-ping \
+  net-tools \
+  dnsutils \
+  curl \
+  wget \
+  traceroute \
+  iproute2 \
+  netcat-openbsd \
+  tcpdump \
+  host \
+  whois
+
 # Install AI coding agents via npm (node is now on PATH from Nix).
 ENV NPM_CONFIG_PREFIX=/usr/local
 RUN npm install -g \
