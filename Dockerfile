@@ -31,6 +31,10 @@ RUN npm install -g \
 RUN mkdir -p /home/coder/.nix-profile /home/coder/.nix-defexpr \
   && chown -R coder:coder /home/coder/.nix-profile /home/coder/.nix-defexpr
 
+# Install a system-wide profile script so every bash/sh session gets Nix
+# on $PATH. This survives the /home/coder volume mount overwriting ~/.bashrc.
+RUN echo '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' > /etc/profile.d/nix.sh
+
 COPY entrypoint.sh /usr/bin/entrypoint.sh
 
 USER 1000
