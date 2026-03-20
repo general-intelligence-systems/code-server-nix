@@ -23,6 +23,7 @@ RUN nix profile install \
     nixpkgs#bat \
     nixpkgs#vim \
     nixpkgs#direnv \
+    nixpkgs#tree \
     nixpkgs#fzf \
     nixpkgs#ripgrep \
     nixpkgs#repgrep \
