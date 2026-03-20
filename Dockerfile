@@ -19,9 +19,11 @@ RUN mkdir -p /etc/nix \
 RUN nix profile install \
     nixpkgs#yq-go \
     nixpkgs#nodejs_22 \
-    nixpkgs#ruby_3_4
+    nixpkgs#ruby_3_4 \
+    nixpkgs#vim
 
 # Install AI coding agents via npm (node is now on PATH from Nix).
+ENV NPM_CONFIG_PREFIX=/usr/local
 RUN npm install -g \
     opencode-ai \
     @anthropic-ai/claude-code \
