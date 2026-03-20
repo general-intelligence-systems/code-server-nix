@@ -24,6 +24,11 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
+# Start the Nix daemon (multi-user install requires it at runtime).
+if [ -e '/nix/var/nix/profiles/default/bin/nix-daemon' ]; then
+  sudo /nix/var/nix/profiles/default/bin/nix-daemon &
+fi
+
 # Allow users to have scripts run on container startup to prepare workspace.
 # https://github.com/coder/code-server/issues/5177
 if [ -d "${ENTRYPOINTD}" ]; then
