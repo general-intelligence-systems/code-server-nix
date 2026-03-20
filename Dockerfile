@@ -20,6 +20,7 @@ RUN nix profile install \
     nixpkgs#yq-go \
     nixpkgs#nodejs_22 \
     nixpkgs#ruby_3_4 \
+    nixpkgs#bat \
     nixpkgs#vim \
     nixpkgs#direnv \
     nixpkgs#fzf \
