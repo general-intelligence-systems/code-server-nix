@@ -28,7 +28,7 @@ RUN nix profile install \
     nixpkgs#gh \
     nixpkgs#zoxide
 
-RUN apt install -y \
+RUN apt update && apt install -y \
   iputils-ping \
   net-tools \
   dnsutils \
