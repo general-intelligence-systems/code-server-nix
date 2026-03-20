@@ -3,8 +3,11 @@ FROM codercom/code-server:latest
 USER root
 
 # Install Nix (Determinate Systems installer — multi-user, daemonless for build).
-RUN curl --proto '=https' --tlsv1.2 --http1.1 -sSf -L \
-    https://install.determinate.systems/nix -o /tmp/nix-install.sh \
+RUN for i in 1 2 3; do \
+      curl --proto '=https' --tlsv1.2 -sSf -L \
+        https://install.determinate.systems/nix -o /tmp/nix-install.sh \
+      && break || sleep 5; \
+    done \
   && sh /tmp/nix-install.sh install linux \
     --extra-conf "sandbox = false" \
     --extra-conf "filter-syscalls = false" \
