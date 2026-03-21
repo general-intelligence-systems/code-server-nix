@@ -28,6 +28,7 @@ RUN nix profile install \
     nixpkgs#ripgrep \
     nixpkgs#repgrep \
     nixpkgs#gh \
+    nixpkgs#tmux \
     nixpkgs#zoxide
 
 RUN apt update && apt install -y \
