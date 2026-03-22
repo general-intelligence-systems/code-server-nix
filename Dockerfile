@@ -104,6 +104,10 @@ NIXSH
 COPY entrypoint.sh /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/entrypoint.sh
 
+
+
+RUN cp -a /nix /nix-store-backup
+
 USER 1000
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]
 
