@@ -37,15 +37,15 @@ ENV PATH="/nix/var/nix/profiles/default/bin:${PATH}"
 RUN mkdir -p /etc/nix \
   && printf "experimental-features = nix-command flakes\ntrusted-users = root coder\n" >> /etc/nix/nix.conf
 
-# Install system tooling via Nix.
-RUN nix profile install \
+RUN nix profile install --profile /nix/var/nix/profiles/default \
     nixpkgs#yq-go \
     nixpkgs#bat \
     nixpkgs#vim \
     nixpkgs#direnv \
     nixpkgs#ripgrep \
+    nixpkgs#tea \
     nixpkgs#gh
-
+    
 RUN apt-get update && apt-get install -y \
   iputils-ping \
   net-tools \
