@@ -79,11 +79,13 @@ RUN ARCH=$(dpkg --print-architecture) && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
 
-# Install docker-compose (arch-aware)
-RUN ARCH=$(uname -m) && \
-    curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${ARCH}" \
-    -o /usr/local/bin/docker-compose && \
-    chmod +x /usr/local/bin/docker-compose
+# Install Docker CLI + Compose plugin (client only — daemon runs on host)
+RUN install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+    > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin
 
 # Robust Nix PATH for all sessions (entrypoint + interactive terminals).
 # Guards against nix-daemon.sh clobbering system PATH.
@@ -104,3 +106,4 @@ RUN chmod +x /usr/bin/entrypoint.sh
 
 USER 1000
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]
+
