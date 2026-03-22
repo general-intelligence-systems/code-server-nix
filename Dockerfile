@@ -18,30 +18,32 @@ RUN mkdir -p /etc/nix \
 # Install system tooling via Nix.
 RUN nix profile install \
     nixpkgs#yq-go \
-    nixpkgs#nodejs_22 \
-    nixpkgs#ruby_3_4 \
     nixpkgs#bat \
     nixpkgs#vim \
     nixpkgs#direnv \
-    nixpkgs#tree \
-    nixpkgs#fzf \
-    nixpkgs#ripgrep \
     nixpkgs#repgrep \
-    nixpkgs#gh \
-    nixpkgs#tmux \
-    nixpkgs#zoxide
+    nixpkgs#gh
 
 RUN apt update && apt install -y \
   iputils-ping \
   net-tools \
   dnsutils \
   curl \
+  jq \
   wget \
+  fzf \
+  tmux \
+  tree \
+  ripgrep \
   traceroute \
   iproute2 \
   netcat-openbsd \
   tcpdump \
+  zoxide \
   host \
+  ruby \
+  sed \
+  build-essential \
   whois
 
 # Install AI coding agents via npm (node is now on PATH from Nix).
