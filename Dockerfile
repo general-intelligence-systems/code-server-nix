@@ -85,11 +85,22 @@ RUN ARCH=$(uname -m) && \
     -o /usr/local/bin/docker-compose && \
     chmod +x /usr/local/bin/docker-compose
 
-# Install a system-wide profile script so every bash/sh session gets Nix
-# on $PATH. This survives the /home/coder volume mount overwriting ~/.bashrc.
-RUN echo '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' > /etc/profile.d/nix.sh
+# Robust Nix PATH for all sessions (entrypoint + interactive terminals).
+# Guards against nix-daemon.sh clobbering system PATH.
+RUN cat > /etc/profile.d/nix.sh <<'NIXSH'
+_sys="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+case ":${PATH}:" in
+  *":/usr/bin:"*) ;;
+  *) export PATH="${PATH}:${_sys}" ;;
+esac
+unset _sys
+NIXSH
 
 COPY entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
 
 USER 1000
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]
