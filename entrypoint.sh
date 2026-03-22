@@ -8,6 +8,10 @@ export PATH="${SYSTEM_PATH}:${PATH}"
 # We do this first to ensure sudo works below when renaming the user.
 # Otherwise the current container UID may not exist in the passwd database.
 eval "$(fixuid -q)"
+# Restore Nix store if the mount shadowed it
+if [ ! -e /nix/var/nix/profiles/default/bin/nix ]; then
+  sudo cp -a /nix-store-backup/* /nix/
+fi
 
 if [ "${DOCKER_USER-}" ]; then
   USER="$DOCKER_USER"
