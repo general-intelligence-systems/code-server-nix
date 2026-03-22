@@ -2,6 +2,32 @@ FROM codercom/code-server:latest
 
 USER root
 
+
+# Prevent interactive prompts during build
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 1. Install prerequisites
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    && mkdir -p /etc/apt/keyrings
+
+# 2. Add the NodeSource GPG key
+RUN curl -fsSL https://deb.nodesource.com | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+# 3. Create the NodeSource repository for Node.js 24.x
+# Node 24 is the current/LTS version as of late 2025/early 2026
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+
+# 4. Update and install Node.js
+RUN apt-get update && apt-get install -y nodejs
+
+# Verify the installation
+RUN node -v && npm -v
+
+
+
 # Install Nix (Determinate Systems installer — multi-user, daemonless for build).
 RUN curl --proto '=https' --tlsv1.2 -sSf -L \
     https://install.determinate.systems/nix | sh -s -- install linux \
@@ -9,8 +35,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L \
     --extra-conf "filter-syscalls = false" \
     --init none \
     --no-confirm
-
+    
 ENV PATH="/nix/var/nix/profiles/default/bin:${PATH}"
+
 
 RUN mkdir -p /etc/nix \
   && printf "experimental-features = nix-command flakes\ntrusted-users = root coder\n" >> /etc/nix/nix.conf
