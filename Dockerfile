@@ -40,22 +40,23 @@ RUN apt update && apt install -y \
   netcat-openbsd \
   tcpdump \
   zoxide \
+  golang \
   host \
   ruby \
   sed \
   build-essential \
   whois
 
-# Install AI coding agents via npm (node is now on PATH from Nix).
 ENV NPM_CONFIG_PREFIX=/usr/local
 RUN npm install -g \
     opencode-ai \
     @anthropic-ai/claude-code \
     @openai/codex
 
-# Ensure coder user can use Nix.
-RUN mkdir -p /home/coder/.nix-profile /home/coder/.nix-defexpr \
-  && chown -R coder:coder /home/coder/.nix-profile /home/coder/.nix-defexpr
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+RUN curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose
 
 # Install a system-wide profile script so every bash/sh session gets Nix
 # on $PATH. This survives the /home/coder volume mount overwriting ~/.bashrc.
